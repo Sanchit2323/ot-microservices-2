@@ -47,19 +47,11 @@ pipeline {
             }
         }
 
-        stage('Run Attendance Migration') {
+        stage('Ensure Postgres DB Ready') {
             steps {
                 sh '''
-                docker run --rm \
-                --network microservice-pipeline_default \
-                -v $(pwd)/services/attendance:/liquibase/changelog \
-                -e LIQUIBASE_COMMAND_URL=jdbc:postgresql://postgres:5432/attendance_db \
-                -e LIQUIBASE_COMMAND_USERNAME=postgres \
-                -e LIQUIBASE_COMMAND_PASSWORD=postgres \
-                -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
-                liquibase/liquibase \
-                --driver=org.postgresql.Driver \
-                update
+                sleep 10
+                docker exec postgres psql -U postgres -c "CREATE DATABASE attendance_db;" || true
                 '''
             }
         }
