@@ -38,10 +38,7 @@ pipeline {
             steps {
                 sh '''
                 sleep 20
-                docker exec scylla cqlsh -e "
-                CREATE KEYSPACE IF NOT EXISTS employee_db
-                WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-                "
+                docker exec scylla cqlsh -e "CREATE KEYSPACE IF NOT EXISTS employee_db WITH replication = {'class':'SimpleStrategy','replication_factor':1};"
                 '''
             }
         }
