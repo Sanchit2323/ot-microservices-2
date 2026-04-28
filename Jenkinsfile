@@ -21,6 +21,7 @@ stages {
         steps {
             sh '''
             cd services/employee
+            sleep 15
 
             go build -o employee-api
 
