@@ -56,6 +56,23 @@ pipeline {
             }
         }
 
+        stage('Init Attendance Tables') {
+            steps {
+                sh '''
+                sleep 10
+
+                docker exec postgres psql -U postgres -d attendance_db -c "
+                CREATE TABLE IF NOT EXISTS attendance (
+                    id SERIAL PRIMARY KEY,
+                    employee_id INT,
+                    status VARCHAR(10),
+                    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                "
+                '''
+            }
+        }
+
         stage('Start Applications') {
             steps {
                 sh 'docker-compose up -d employee attendance'
