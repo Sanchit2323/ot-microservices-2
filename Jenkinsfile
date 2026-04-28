@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/Sanchit2323/ot-microservices-2.git'
+                git branch: 'main', url: 'https://github.com/Sanchit2323/ot-microservices-2.git'
             }
         }
 
