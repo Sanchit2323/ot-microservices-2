@@ -17,7 +17,6 @@ stages {
             cd services/employee
             go build -o employee-api
             nohup ./employee-api > employee.log 2>&1 &
-            disown
 
             # Attendance
             cd ../attendance
@@ -31,7 +30,6 @@ stages {
             pip install flask flasgger flask-caching prometheus-flask-exporter psycopg2-binary python-json-logger gunicorn voluptuous pyyaml redis peewee
 
             nohup gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 &
-            disown
             '''
         }
     }
