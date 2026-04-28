@@ -1,33 +1,27 @@
 pipeline {
 agent any
 
-stages {
 
-    stage('Checkout Code') {
-        steps {
-            git branch: 'main', url: 'https://github.com/Sanchit2323/ot-microservices-2.git'
-        }
-    }
+stages {
 
     stage('Deploy') {
         steps {
             sh '''
-            pwd
+            cd /home/ubuntu/ot-microservices-2
+
+            git pull
 
             sudo pkill employee-api || true
+            sudo pkill gunicorn || true
 
-            # Employee Service
+            # Start Employee
             cd services/employee
             go build -o employee-api
             setsid ./employee-api > employee.log 2>&1 < /dev/null &
 
-            # Attendance Service
+            # Start Attendance (USE EXISTING WORKING ENV)
             cd ../attendance
-            python3 -m venv venv || true
-            . venv/bin/activate
-
-            pip install --upgrade pip
-            pip install flask flasgger flask-caching prometheus-flask-exporter psycopg2-binary python-json-logger gunicorn voluptuous pyyaml redis peewee
+            source /home/ubuntu/ot-microservices-2/services/attendance/venv/bin/activate
 
             setsid gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 < /dev/null &
             '''
@@ -45,5 +39,4 @@ stages {
         }
     }
 }
-
 }
