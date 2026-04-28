@@ -12,8 +12,8 @@ stages {
     stage('Stop Old Services') {
         steps {
             sh '''
-            pkill employee-api || true
-            pkill gunicorn || true
+            sudo pkill employee-api || true
+            sudo pkill gunicorn || true
             '''
         }
     }
