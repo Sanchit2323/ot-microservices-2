@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        EC2_IP = "YOUR_EC2_PUBLIC_IP"
+        EC2_USER = "ubuntu"
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -9,82 +14,43 @@ pipeline {
             }
         }
 
-        stage('Cleanup') {
+        stage('Deploy to EC2') {
             steps {
                 sh '''
-                docker rm -f scylla postgres employee attendance || true
-                docker network rm microservice-pipeline_default || true
+                ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} << EOF
+
+                cd ~/ot-microservices-2 || git clone https://github.com/Sanchit2323/ot-microservices-2.git
+
+                cd ~/ot-microservices-2
+                git pull
+
+                # 🔥 Stop old services
+                pkill employee-api || true
+                pkill gunicorn || true
+
+                # 🔥 Start Employee (Go)
+                cd services/employee
+                go build -o employee-api
+                nohup ./employee-api > employee.log 2>&1 &
+
+                # 🔥 Start Attendance (Python)
+                cd ../attendance
+                source venv/bin/activate
+                nohup gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 &
+
+                exit
+                EOF
                 '''
-            }
-        }
-
-        stage('Build Images') {
-            steps {
-                sh 'docker-compose build'
-            }
-        }
-
-        stage('Start Databases Only') {
-            steps {
-                sh 'docker-compose up -d postgres scylla'
-            }
-        }
-
-        stage('Init Scylla Keyspace') {
-            steps {
-                sh '''
-                sleep 15
-                docker exec scylla cqlsh -e "CREATE KEYSPACE IF NOT EXISTS employee_db WITH replication = {'class':'SimpleStrategy','replication_factor':1};"
-                '''
-            }
-        }
-
-        stage('Create Postgres DB') {
-            steps {
-                sh '''
-                docker exec postgres psql -U postgres -c "CREATE DATABASE attendance_db;" || true
-                '''
-            }
-        }
-
-        stage('Ensure Postgres DB Ready') {
-            steps {
-                sh '''
-                sleep 10
-                docker exec postgres psql -U postgres -c "CREATE DATABASE attendance_db;" || true
-                '''
-            }
-        }
-
-        stage('Init Attendance Tables') {
-            steps {
-                sh '''
-                docker exec postgres psql -U postgres -d attendance_db -c "
-                CREATE TABLE IF NOT EXISTS records (
-                    id SERIAL PRIMARY KEY,
-                    name TEXT,
-                    status TEXT,
-                    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                "
-                '''
-            }
-        }
-
-        stage('Start Applications') {
-            steps {
-                sh 'docker-compose up -d employee attendance'
             }
         }
 
         stage('Health Check') {
             steps {
                 sh '''
-                echo "Checking Employee..."
-                for i in {1..5}; do sleep 5; curl -f http://localhost:8081/api/v1/employee/health && break; done
+                sleep 10
 
-                echo "Checking Attendance..."
-                for i in {1..5}; do sleep 5; curl -f http://localhost:8082/api/v1/attendance/health && break; done
+                curl http://${EC2_IP}:8081/api/v1/employee/health
+                curl http://${EC2_IP}:8082/api/v1/attendance/health
                 '''
             }
         }
