@@ -1,27 +1,26 @@
 pipeline {
 agent any
 
-
 stages {
 
     stage('Deploy') {
         steps {
             sh '''
-            cd /home/ubuntu/ot-microservices-2
+            cd /var/lib/jenkins/ot-microservices-2
 
-            git pull
+            git pull || true
 
             sudo pkill employee-api || true
             sudo pkill gunicorn || true
 
-            # Start Employee
+            # Employee
             cd services/employee
             go build -o employee-api
             setsid ./employee-api > employee.log 2>&1 < /dev/null &
 
-            # Start Attendance (USE EXISTING WORKING ENV)
+            # Attendance
             cd ../attendance
-            source /home/ubuntu/ot-microservices-2/services/attendance/venv/bin/activate
+            . venv/bin/activate
 
             setsid gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 < /dev/null &
             '''
@@ -39,4 +38,5 @@ stages {
         }
     }
 }
+
 }
