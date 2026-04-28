@@ -34,8 +34,12 @@ stages {
         steps {
             sh '''
             cd services/attendance
+            python3 -m venv venv || true
 
             . venv/bin/activate
+
+            pip install --upgrade pip
+            pip install flask flasgger flask-caching prometheus-flask-exporter psycopg2-binary python-json-logger gunicorn voluptuous pyyaml redis peewee
 
             nohup gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 &
             '''
