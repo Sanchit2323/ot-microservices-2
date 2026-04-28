@@ -45,6 +45,14 @@ pipeline {
             }
         }
 
+        stage('Restart Services') {
+            steps {
+                sh '''
+                docker restart employee attendance
+                '''
+           }
+        }
+
         stage('Health Check') {
             steps {
                 sh '''
