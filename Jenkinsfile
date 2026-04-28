@@ -59,13 +59,11 @@ pipeline {
         stage('Init Attendance Tables') {
             steps {
                 sh '''
-                sleep 10
-
                 docker exec postgres psql -U postgres -d attendance_db -c "
-                CREATE TABLE IF NOT EXISTS attendance (
+                CREATE TABLE IF NOT EXISTS records (
                     id SERIAL PRIMARY KEY,
-                    employee_id INT,
-                    status VARCHAR(10),
+                    name TEXT,
+                    status TEXT,
                     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 "
