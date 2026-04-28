@@ -35,7 +35,7 @@ stages {
             sh '''
             cd services/attendance
 
-            source venv/bin/activate
+            . venv/bin/activate
 
             nohup gunicorn app:app --log-config log.conf -b 0.0.0.0:8082 > attendance.log 2>&1 &
             '''
