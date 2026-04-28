@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  scylla:
+    image: scylladb/scylla
+    container_name: scylla
+    ports:
+      - "9042:9042"
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: attendance_db
+    ports:
+      - "5432:5432"
+
+  employee:
+    build: ./services/employee
+    container_name: employee
+    ports:
+      - "8081:8081"
+    depends_on:
+      - scylla
+
+  attendance:
+    build: ./services/attendance
+    container_name: attendance
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres

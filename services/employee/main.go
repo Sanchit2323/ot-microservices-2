@@ -44,5 +44,5 @@ func main() {
 	routes.CreateRouterForEmployee(v1)
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
-	router.Run(":8080")
+	router.Run(":8081")
 }
