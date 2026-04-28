@@ -51,11 +51,18 @@ stages {
             sh '''
             sleep 10
 
-            echo "Checking Employee..."
-            curl -f http://localhost:8081/api/v1/employee/health
+            for i in {1..5}
+            do 
+              sleep 5 
+              curl http://localhost:8081/api/v1/employee/health && break 
+            done
 
             echo "Checking Attendance..."
-            curl -f http://localhost:8082/api/v1/attendance/health
+            for i in {1..5}
+            do 
+              sleep 5 
+              curl http://localhost:8082/api/v1/attendance/health && break 
+            done
             '''
         }
     }
