@@ -46,15 +46,7 @@ pipeline {
         stage('Run Attendance Migration') {
             steps {
                 sh '''
-                docker run --rm \
-                --network microservice-pipeline_default \
-                -v $(pwd)/services/attendance:/liquibase/changelog \
-                liquibase/liquibase \
-                --url=jdbc:postgresql://postgres:5432/attendance_db \
-                --changeLogFile=db.changelog-master.xml \
-                --username=postgres \
-                --password=postgres \
-                update
+                docker exec postgres psql -U postgres -c "CREATE DATABASE attendance_db;" || true
                 '''
             }
         }
