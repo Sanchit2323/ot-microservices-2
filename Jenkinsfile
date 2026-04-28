@@ -34,6 +34,17 @@ pipeline {
             }
         }
 
+        stage('Run Migrations') {
+            steps {
+                sh '''
+                sleep 15
+
+                # attendance migration
+                docker exec attendance liquibase update --driver-properties-file=liquibase.properties || true
+                '''
+            }
+        }
+
         stage('Health Check') {
             steps {
                 sh '''
