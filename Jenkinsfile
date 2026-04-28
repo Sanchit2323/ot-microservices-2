@@ -20,7 +20,6 @@ pipeline {
         stage('Deploy Services') {
             steps {
                 sh '''
-                cd $APP_DIR
                 docker-compose down
                 docker-compose up -d
                 '''
