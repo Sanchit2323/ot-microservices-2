@@ -9,6 +9,14 @@ pipeline {
             }
         }
 
+        stage('Cleanup Old Containers') {
+            steps {
+                sh '''
+                docker rm -f scylla postgres employee attendance || true
+                '''
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 sh '''
