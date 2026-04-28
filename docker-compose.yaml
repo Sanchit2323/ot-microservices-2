@@ -26,8 +26,8 @@ services:
     depends_on:
       - scylla
 
-  attendance:
-    build: ./services/attendance
+ # attendance:
+  #  build: ./services/attendance
     container_name: attendance
     ports:
       - "8082:8080"
