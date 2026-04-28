@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-#    environment {
-#        APP_DIR = "/home/ubuntu/ot-microservices-2"
-#   }
-
     stages {
 
         stage('Checkout Code') {
