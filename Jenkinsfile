@@ -17,6 +17,28 @@ stages {
         }
     }
 
+    stage('Wait for Databases') {
+        steps {
+            sh '''
+            echo "Waiting for Scylla..."
+            for i in {1..10}
+            do
+            nc -z localhost 9042 && echo "Scylla Ready" && break
+            sleep 5
+            done
+
+
+            echo "Waiting for Postgres..."
+            for i in {1..10}
+            do
+            nc -z localhost 5432 && echo "Postgres Ready" && break
+            sleep 5
+            done
+            '''
+        }
+    }
+
+
     stage('Build & Start Employee') {
         steps {
             sh '''
@@ -63,6 +85,7 @@ stages {
               sleep 5 
               curl http://localhost:8082/api/v1/attendance/health && break 
             done
+            exit 0
             '''
         }
     }
