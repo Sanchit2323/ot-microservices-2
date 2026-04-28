@@ -13,7 +13,6 @@ stages {
         steps {
             sh '''
             sudo pkill employee-api || true
-            sudo pkill gunicorn || true
             '''
         }
     }
