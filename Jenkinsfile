@@ -34,6 +34,34 @@ pipeline {
             }
         }
 
+        stage('Init Scylla DB') {
+            steps {
+                sh '''
+                sleep 20
+                docker exec scylla cqlsh -e "
+                CREATE KEYSPACE IF NOT EXISTS employee_db
+                WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+                "
+                '''
+            }
+        }
+
+        stage('Run Attendance Migration') {
+            steps {
+                sh '''
+                docker run --rm \
+                --network microservice-pipeline_default \
+                -v $(pwd)/services/attendance:/liquibase/changelog \
+                liquibase/liquibase \
+                --url=jdbc:postgresql://postgres:5432/attendance_db \
+                --changeLogFile=db.changelog-master.xml \
+                --username=postgres \
+                --password=postgres \
+                update
+                '''
+            }
+        }
+
         stage('Run Migrations') {
             steps {
                 sh '''
