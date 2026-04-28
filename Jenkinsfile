@@ -1,63 +1,26 @@
 pipeline {
 agent any
 
+
 stages {
 
-    stage('Checkout Code') {
-        steps {
-            git branch: 'main', url: 'https://github.com/Sanchit2323/ot-microservices-2.git'
-        }
-    }
-
-    stage('Stop Old Services') {
+    stage('Deploy') {
         steps {
             sh '''
+            cd /home/ubuntu/ot-microservices-2
+
+            git pull
+
             sudo pkill employee-api || true
-            '''
-        }
-    }
 
-    stage('Wait for Databases') {
-        steps {
-            sh '''
-            echo "Waiting for Scylla..."
-            for i in {1..10}
-            do
-            nc -z localhost 9042 && echo "Scylla Ready" && break
-            sleep 5
-            done
-
-
-            echo "Waiting for Postgres..."
-            for i in {1..10}
-            do
-            nc -z localhost 5432 && echo "Postgres Ready" && break
-            sleep 5
-            done
-            '''
-        }
-    }
-
-
-    stage('Build & Start Employee') {
-        steps {
-            sh '''
+            # Start Employee Service
             cd services/employee
-            sleep 15
-
             go build -o employee-api
-
             setsid ./employee-api > employee.log 2>&1 < /dev/null &
-            '''
-        }
-    }
 
-    stage('Start Attendance') {
-        steps {
-            sh '''
-            cd services/attendance
+            # Start Attendance Service
+            cd ../attendance
             python3 -m venv venv || true
-
             . venv/bin/activate
 
             pip install --upgrade pip
@@ -71,24 +34,17 @@ stages {
     stage('Health Check') {
         steps {
             sh '''
-            sleep 10
+            sleep 20
 
-            for i in {1..5}
-            do 
-              sleep 5 
-              curl http://localhost:8081/api/v1/employee/health && break 
-            done
+            echo "Checking Employee..."
+            curl http://localhost:8081/api/v1/employee/health
 
             echo "Checking Attendance..."
-            for i in {1..5}
-            do 
-              sleep 5 
-              curl http://localhost:8082/api/v1/attendance/health && break 
-            done
-            exit 0
+            curl http://localhost:8082/api/v1/attendance/health
             '''
         }
     }
 }
+```
 
 }
