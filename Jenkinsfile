@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        APP_DIR = "/home/ubuntu/ot-microservices-2"
-    }
+#    environment {
+#        APP_DIR = "/home/ubuntu/ot-microservices-2"
+#   }
 
     stages {
 
@@ -16,7 +16,6 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
-                cd $APP_DIR
                 docker-compose build
                 '''
             }
