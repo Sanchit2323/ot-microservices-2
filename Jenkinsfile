@@ -21,6 +21,8 @@ stages {
             # Attendance
             cd ../attendance
 
+            rm -rf venv   # 🔥 IMPORTANT
+
             python3 -m venv venv
             . venv/bin/activate
 
